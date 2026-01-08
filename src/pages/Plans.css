@@ -1,0 +1,129 @@
+.page-padding {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+}
+
+.billing-toggle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.toggle-switch {
+    width: 60px;
+    height: 30px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    position: relative;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.switch-handle {
+    width: 26px;
+    height: 26px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    transition: 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.switch-handle.annual {
+    left: 31px;
+    background: var(--primary-red);
+}
+
+.discount-tag {
+    background: rgba(210, 4, 4, 0.2);
+    color: var(--primary-red);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+    font-weight: bold;
+}
+
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.plan-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+}
+
+.plan-card.highlight {
+    border-color: var(--primary-red);
+    box-shadow: 0 0 20px rgba(210, 4, 4, 0.2);
+    transform: scale(1.02);
+    z-index: 2;
+}
+
+.popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-red);
+    color: white;
+    padding: 0.25rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.price {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1rem 0 1.5rem;
+    text-align: center;
+}
+
+.plan-details-list {
+    margin-bottom: 2rem;
+    flex-grow: 1;
+    list-style: none;
+    padding: 0;
+}
+
+.plan-details-list li {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.9rem;
+}
+
+.plan-details-list li:last-child {
+    border-bottom: none;
+}
+
+.feature-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.5px;
+}
+
+.feature-value {
+    font-weight: 500;
+}
+
+.disclaimer-presencial strong {
+    color: white;
+}

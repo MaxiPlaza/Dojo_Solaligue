@@ -1,0 +1,103 @@
+.dojo-section {
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 3rem;
+    border: 1px solid var(--border-color);
+}
+
+.dojo-section h2 {
+    color: var(--primary-red);
+    margin-bottom: 0.5rem;
+}
+
+.address {
+    color: #aaa;
+    margin-bottom: 2rem;
+}
+
+.schedule-table-container {
+    overflow-x: auto;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.schedule-table th,
+.schedule-table td {
+    border: 1px solid #333;
+    padding: 1rem;
+    text-align: center;
+}
+
+.schedule-table th {
+    background: #111;
+    color: var(--primary-red);
+}
+
+.schedule-table td {
+    background: #222;
+}
+
+/* Karate Section */
+.karate-section {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a0000 100%);
+    padding: 3rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--primary-red);
+    position: relative;
+    overflow: hidden;
+}
+
+.karate-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.badge {
+    background: var(--primary-red);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.schedule-list {
+    margin-top: 2rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.schedule-item {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1.5rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.schedule-item .day {
+    font-weight: 700;
+    color: white;
+}
+
+.schedule-item .time {
+    color: var(--primary-red);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+@media(max-width: 600px) {
+    .schedule-item {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
