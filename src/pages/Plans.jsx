@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check, X, Info } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Plans.css';
 
 // Feature rows for comparison table
@@ -20,6 +21,7 @@ const plansData = [
 ];
 
 export default function Plans() {
+    const { user } = useAuth();
     const [isAnnual, setIsAnnual] = useState(false);
 
     const formatPrice = (price) => {
@@ -87,9 +89,50 @@ export default function Plans() {
                             <button
                                 className={`btn ${plan.highlight ? 'btn-primary' : 'btn-outline'}`}
                                 style={{ width: '100%', marginTop: 'auto' }}
-                                onClick={() => window.location.href = '/register'}
+                                onClick={async () => {
+                                    if (user?.role === 'admin' || user?.role === 'coach') {
+                                        alert('Los administradores y coaches no necesitan suscribirse a planes.');
+                                        return;
+                                    }
+                                    if (!user) {
+                                        window.location.href = '/register';
+                                        return;
+                                    }
+
+                                    if (plan.id === 0) {
+                                        window.location.href = '/dashboard';
+                                        return;
+                                    }
+
+                                    // Create payment preference
+                                    try {
+                                        const res = await fetch('http://localhost:3000/api/payment/create_preference', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming token is in localStorage
+                                            },
+                                            body: JSON.stringify({
+                                                planId: plan.id,
+                                                title: `Plan ${plan.name}`,
+                                                price: isAnnual ? plan.priceAnnual : plan.priceMonthly,
+                                                isAnnual: isAnnual
+                                            })
+                                        });
+                                        const data = await res.json();
+                                        if (data.init_point) {
+                                            window.location.href = data.init_point;
+                                        } else {
+                                            alert('Error al generar el link de pago.');
+                                        }
+                                    } catch (e) {
+                                        console.error(e);
+                                        alert('Error de conexión.');
+                                    }
+                                }}
+                                disabled={user?.role === 'admin' || user?.role === 'coach'}
                             >
-                                {plan.id === 0 ? 'Registrarse Gratis' : 'Suscribirse'}
+                                {user?.role === 'admin' || user?.role === 'coach' ? 'No disponible' : (plan.id === 0 ? 'Registrarse Gratis' : 'Suscribirse')}
                             </button>
                         </div>
                     );

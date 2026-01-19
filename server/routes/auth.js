@@ -25,9 +25,9 @@ router.post('/register', async (req, res) => {
         // For simplicity, we'll allow it for now but in a real app check permissions.
         // User requested: "alumnos se registren gratis y empiecen con el plan gratuito"
 
-        const userRole = role || 'student';
-        // Plan 1 is 'Novato' (Free/Cheap)
-        const userPlan = plan_id || 0; // Default to 0 (Gratuito)
+        const userRole = 'student'; // Always student on public registration
+        // Plan 0 is 'Gratuito'
+        const userPlan = 0;
 
         const result = db.prepare(`
       INSERT INTO users (name, email, password, role, plan_id, phone)

@@ -6,9 +6,12 @@ CREATE TABLE IF NOT EXISTS users (
   password TEXT NOT NULL,
   role TEXT CHECK(role IN ('admin', 'coach', 'student')) NOT NULL DEFAULT 'student',
   plan_id INTEGER,
+  subscription_end_date DATETIME,
+  linked_maestro_id INTEGER,
   phone TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (plan_id) REFERENCES plans(id)
+  FOREIGN KEY (plan_id) REFERENCES plans(id),
+  FOREIGN KEY (linked_maestro_id) REFERENCES users(id)
 );
 
 -- Plans
@@ -87,8 +90,19 @@ CREATE TABLE IF NOT EXISTS coach_students (
   FOREIGN KEY (student_id) REFERENCES users(id)
 );
 
+-- Contact Messages
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT,
+  message TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Default Data
 INSERT OR IGNORE INTO plans (id, name, price, description) VALUES 
+(0, 'Gratuito', 0, 'Acceso inicial gratuito'),
 (1, 'Novato', 8000, 'Acceso básico'),
 (2, 'Luchador', 15000, 'Acceso intermedio + PDFs exclusivos'),
 (3, 'Maestro', 30000, 'Acceso total + 2x1');

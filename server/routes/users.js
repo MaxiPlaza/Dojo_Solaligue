@@ -29,6 +29,11 @@ router.get('/coaches', (req, res) => {
 router.post('/create_coach', authenticateToken, requireRole(['admin']), async (req, res) => {
     const { name, email, password, phone } = req.body;
     try {
+        const existingUser = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+        if (existingUser) {
+            return res.status(400).json({ error: 'Email already exists' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         db.prepare(`
             INSERT INTO users (name, email, password, role, plan_id, phone)
@@ -36,6 +41,7 @@ router.post('/create_coach', authenticateToken, requireRole(['admin']), async (r
         `).run(name, email, hashedPassword, phone);
         res.status(201).json({ message: 'Coach created successfully' });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -86,6 +92,45 @@ router.post('/assign', authenticateToken, requireRole(['admin']), (req, res) => 
         res.json({ message: 'Student assigned to coach' });
     } catch (error) {
         res.status(500).json({ error: 'Could not assign student (maybe already assigned)' });
+    }
+});
+
+// Maestro Plan: Link a friend (2x1 logic)
+router.post('/link_friend', authenticateToken, (req, res) => {
+    const { friendEmail } = req.body;
+    const userId = req.user.id;
+
+    try {
+        // Check if current user is Maestro AND a student (Exclude coaches)
+        const user = db.prepare('SELECT plan_id, role FROM users WHERE id = ?').get(userId);
+
+        if (user.role === 'coach') {
+            return res.status(403).json({ error: 'Los coaches no gozan del beneficio 2x1.' });
+        }
+
+        if (user.plan_id !== 3 && user.role !== 'admin') {
+            return res.status(403).json({ error: 'Solo los alumnos del Plan Maestro pueden invitar amigos.' });
+        }
+
+        // Find friend
+        const friend = db.prepare('SELECT id, plan_id FROM users WHERE email = ?').get(friendEmail);
+        if (!friend) {
+            return res.status(404).json({ error: 'Usuario no encontrado. El amigo debe estar registrado primero.' });
+        }
+
+        if (friend.id === userId) {
+            return res.status(400).json({ error: 'No puedes invitarte a ti mismo.' });
+        }
+
+        // Check if friend already has a plan or is already linked
+        // (Optional: Allow upgrading them if they are 'Aspirante')
+
+        db.prepare('UPDATE users SET plan_id = 3, linked_maestro_id = ? WHERE id = ?').run(userId, friend.id);
+
+        res.json({ message: 'Amigo vinculado exitosamente al Plan Maestro (2x1)!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al vincular amigo' });
     }
 });
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Trash2, UserPlus, FileText } from 'lucide-react';
+import { Trash2, UserPlus, FileText, Edit, Layout } from 'lucide-react';
 
 export default function AdminDashboard() {
     const { token } = useAuth();
@@ -8,10 +8,13 @@ export default function AdminDashboard() {
 
     // Data State
     const [coaches, setCoaches] = useState([]);
+    const [students, setStudents] = useState([]);
+    const [content, setContent] = useState([]);
     const [loading, setLoading] = useState(false);
 
     // Forms State
     const [newCoach, setNewCoach] = useState({ name: '', email: '', password: '', phone: '' });
+    const [editingContent, setEditingContent] = useState(null);
 
     // Fetch Data
     const fetchData = async () => {
@@ -21,6 +24,16 @@ export default function AdminDashboard() {
             const resCoaches = await fetch('http://localhost:3000/api/users/coaches', { headers: { Authorization: `Bearer ${token}` } });
             const dataCoaches = await resCoaches.json();
             setCoaches(dataCoaches);
+
+            // Fetch All Users to filter Students
+            const resAll = await fetch('http://localhost:3000/api/users', { headers: { Authorization: `Bearer ${token}` } });
+            const dataAll = await resAll.json();
+            setStudents(dataAll.filter(u => u.role === 'student'));
+
+            // Content
+            const resContent = await fetch('http://localhost:3000/api/content', { headers: { Authorization: `Bearer ${token}` } });
+            const dataContent = await resContent.json();
+            setContent(dataContent);
         } catch (e) { console.error(e); }
         setLoading(false);
     };
@@ -56,12 +69,42 @@ export default function AdminDashboard() {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
-            if (res.ok) {
-                fetchData();
-            } else {
-                alert('No se pudo eliminar');
-            }
+            if (res.ok) fetchData();
+            else alert('No se pudo eliminar');
         } catch (e) { console.error(e); }
+    };
+
+    const handleDeleteContent = async (id) => {
+        if (!confirm('¿Seguro que deseas eliminar este contenido?')) return;
+        try {
+            const res = await fetch(`http://localhost:3000/api/content/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) fetchData();
+            else alert('No se pudo eliminar');
+        } catch (e) { console.error(e); }
+    };
+
+    const handleUpdateContentSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(`http://localhost:3000/api/content/${editingContent.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify(editingContent)
+            });
+            if (res.ok) {
+                alert('Contenido actualizado');
+                setEditingContent(null);
+                fetchData();
+            } else alert('Error al actualizar');
+        } catch (e) { console.error(e); }
+    };
+
+    const getPlanName = (level) => {
+        const plans = ['Gratuito', 'Novato', 'Luchador', 'Maestro'];
+        return plans[level] || 'Desconocido';
     };
 
     return (
@@ -70,6 +113,8 @@ export default function AdminDashboard() {
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <button className={`btn ${activeTab === 'coaches' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('coaches')}>Coaches</button>
+                <button className={`btn ${activeTab === 'students' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('students')}>Alumnos</button>
+                <button className={`btn ${activeTab === 'content' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('content')}>Contenido</button>
                 <button className={`btn ${activeTab === 'reports' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('reports')}>Reportes</button>
             </div>
 
@@ -103,6 +148,73 @@ export default function AdminDashboard() {
                 </div>
             )}
 
+            {activeTab === 'students' && (
+                <div>
+                    <h3>Gestión de Alumnos</h3>
+                    <div style={{ display: 'grid', gap: '1rem', marginTop: '1rem', marginBottom: '2rem' }}>
+                        {students.map(s => (
+                            <div key={s.id} style={{ background: '#1a1a1a', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '8px' }}>
+                                <div>
+                                    <strong>{s.name}</strong> ({s.email})
+                                    <div style={{ fontSize: '0.8rem', color: '#888' }}>Plan: {getPlanName(s.plan_id)} | Tel: {s.phone}</div>
+                                </div>
+                                <button className="btn btn-outline" style={{ borderColor: 'red', color: 'red' }} onClick={() => handleDeleteUser(s.id)}>
+                                    <Trash2 size={16} /> Eliminar
+                                </button>
+                            </div>
+                        ))}
+                        {students.length === 0 && <p style={{ color: '#555' }}>No hay alumnos registrados.</p>}
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'content' && (
+                <div>
+                    <h3><Layout className="red-text" size={20} /> Gestión de Contenido</h3>
+                    {editingContent && (
+                        <div style={{ background: '#111', padding: '1rem', border: '1px solid #c00', marginBottom: '2rem', borderRadius: '8px' }}>
+                            <h4>Editar: {editingContent.title}</h4>
+                            <form onSubmit={handleUpdateContentSubmit} style={{ display: 'grid', gap: '0.5rem', marginTop: '1rem' }}>
+                                <input value={editingContent.title} onChange={e => setEditingContent({ ...editingContent, title: e.target.value })} required style={{ padding: '0.5rem', background: '#222', color: 'white' }} />
+                                <textarea value={editingContent.description} onChange={e => setEditingContent({ ...editingContent, description: e.target.value })} style={{ padding: '0.5rem', background: '#222', color: 'white' }} />
+                                <select value={editingContent.plan_min_level} onChange={e => setEditingContent({ ...editingContent, plan_min_level: e.target.value })} style={{ padding: '0.5rem', background: '#222', color: 'white' }}>
+                                    <option value="0">Gratuito</option>
+                                    <option value="1">Novato</option>
+                                    <option value="2">Luchador</option>
+                                    <option value="3">Maestro</option>
+                                </select>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <button className="btn btn-primary">Guardar</button>
+                                    <button type="button" className="btn btn-outline" onClick={() => setEditingContent(null)}>Cancelar</button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    {['video', 'pdf', 'image', 'meeting'].map(type => (
+                        <div key={type} style={{ marginBottom: '2rem' }}>
+                            <h4 style={{ textTransform: 'uppercase', color: '#888', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>{type}s</h4>
+                            <div style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
+                                {content.filter(c => c.type === type).map(c => (
+                                    <div key={c.id} style={{ background: '#1a1a1a', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <strong>{c.title}</strong>
+                                            <div style={{ fontSize: '0.8rem', color: '#888' }}>{c.description}</div>
+                                            <div style={{ fontSize: '0.75rem', marginTop: '0.3rem' }}><span className="red-text">Plan:</span> {getPlanName(c.plan_min_level)}</div>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button className="btn btn-outline" style={{ padding: '0.5rem' }} onClick={() => setEditingContent(c)}><Edit size={14} /></button>
+                                            <button className="btn btn-outline" style={{ padding: '0.5rem', borderColor: 'red', color: 'red' }} onClick={() => handleDeleteContent(c.id)}><Trash2 size={14} /></button>
+                                        </div>
+                                    </div>
+                                ))}
+                                {content.filter(c => c.type === type).length === 0 && <p style={{ color: '#555' }}>No hay {type}s.</p>}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {activeTab === 'reports' && (
                 <div style={{ textAlign: 'center', padding: '3rem' }}>
                     <FileText size={48} className="red-text" style={{ marginBottom: '1rem' }} />
@@ -111,6 +223,10 @@ export default function AdminDashboard() {
                         <div>
                             <h4 style={{ fontSize: '3rem', color: 'white' }}>{coaches.length}</h4>
                             <p style={{ color: '#888' }}>Usuarios Totales</p>
+                        </div>
+                        <div>
+                            <h4 style={{ fontSize: '3rem', color: 'white' }}>{content.length}</h4>
+                            <p style={{ color: '#888' }}>Contenidos Totales</p>
                         </div>
                     </div>
                 </div>

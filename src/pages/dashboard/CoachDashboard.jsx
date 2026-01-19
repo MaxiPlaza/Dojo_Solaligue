@@ -16,7 +16,7 @@ export default function CoachDashboard({ user, isAdmin }) {
     const [file, setFile] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:3000/api/users/students', {
+        fetch('http://localhost:3000/api/mentorship/my_students', {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -27,7 +27,7 @@ export default function CoachDashboard({ user, isAdmin }) {
     const handleSendNote = async (e) => {
         e.preventDefault();
         try {
-            await fetch('http://localhost:3000/api/mentorship', {
+            await fetch('http://localhost:3000/api/mentorship/notes', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -56,11 +56,27 @@ export default function CoachDashboard({ user, isAdmin }) {
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData
             });
-            if (res.ok) {
-                alert('Contenido subido');
-                setTitle('');
+
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                data = { error: text.slice(0, 100) };
             }
-        } catch (e) { console.error(e); }
+
+            if (res.ok) {
+                alert('¡Contenido subido con éxito!');
+                setTitle('');
+                setDesc('');
+                setFile(null);
+            } else {
+                alert(`Error ${res.status}: ${data.error || 'Error desconocido'}`);
+            }
+        } catch (e) {
+            console.error('Upload Error:', e);
+            alert('Error de conexión con el servidor. Por favor, reinicia el servidor si el problema persiste.');
+        }
     };
 
     return (
