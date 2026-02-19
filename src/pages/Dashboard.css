@@ -1,0 +1,53 @@
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.dash-section {
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.dash-section h2 {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.content-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #1a1a1a;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1rem;
+    align-items: flex-start;
+}
+
+.content-icon {
+    background: #333;
+    padding: 0.5rem;
+    border-radius: 50%;
+    color: var(--primary-red);
+}
+
+.note-card {
+    background: #2a2a2a;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary-red);
+    margin-bottom: 1rem;
+}
+
+.note-card small {
+    display: block;
+    color: #888;
+    margin-bottom: 0.5rem;
+}
