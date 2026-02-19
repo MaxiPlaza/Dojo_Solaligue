@@ -14,7 +14,31 @@
         },
         {
             "source": "/api/payment/(.*)",
-            "destination": "/api/payment.js"
+            "destination": "/api/billing.js"
+        },
+        {
+            "source": "/api/plans",
+            "destination": "/api/billing.js"
+        },
+        {
+            "source": "/api/dojos",
+            "destination": "/api/gym.js"
+        },
+        {
+            "source": "/api/modalities",
+            "destination": "/api/gym.js"
+        },
+        {
+            "source": "/api/schedules",
+            "destination": "/api/gym.js"
+        },
+        {
+            "source": "/api/contact",
+            "destination": "/api/support.js"
+        },
+        {
+            "source": "/api/health",
+            "destination": "/api/support.js"
         },
         {
             "source": "/api/content/(.*)",
